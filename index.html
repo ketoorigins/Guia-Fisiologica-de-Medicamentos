@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keto Origins - Med-Info</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #24143b; /* Base background */
+        }
+        .main-gradient {
+            /* Background gradient */
+            background: linear-gradient(180deg, #24143b 0%, #321a3b 100%);
+        }
+        .btn-primary {
+            /* Button style inspired by the image */
+            background: linear-gradient(90deg, #6D28D9 0%, #4F46E5 100%);
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: bold;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.12);
+            transition: box-shadow 0.3s ease;
+        }
+        .btn-primary:hover {
+            /* Illumination effect on hover */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 20px rgba(109, 40, 217, 0.6);
+        }
+        .card {
+            /* Card color and hover effect */
+            background-color: #292339;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            border-color: #6D28D9;
+            box-shadow: 0 0 15px rgba(109, 40, 217, 0.3);
+        }
+        .search-input::placeholder {
+            color: #a0aec0;
+        }
+        /* Neon Cyan Text for list items */
+        .neon-cyan {
+            color: #00E5FF; /* Bright cyan */
+            text-shadow: 0 0 5px rgba(0, 229, 255, 0.7),
+                         0 0 10px rgba(0, 229, 255, 0.5),
+                         0 0 15px rgba(0, 229, 255, 0.3);
+        }
+        /* Styles for the curative TEXT */
+        .curative-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-left: 1rem;
+            vertical-align: middle;
+        }
+        .curative-text.cures {
+            color: #22c55e; /* Bright Green */
+        }
+        .curative-text.no-cure {
+            background: linear-gradient(90deg, #f97316 0%, #ef4444 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #24143b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6D28D9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4F46E5;
+        }
+        .logo-shadow {
+            filter: drop-shadow(0 0 12px rgba(167, 139, 250, 0.6));
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <div id="app" class="min-h-screen main-gradient p-4 sm:p-6 lg:p-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <header class="relative text-center mb-4 py-4">
+                <div class="flex flex-col items-center">
+                      <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Keto Origins Logo" class="w-24 h-24 mb-2 logo-shadow" onerror="this.onerror=null;this.src='https://placehold.co/96x96/24143b/ffffff?text=KO';">
+                      <span class="font-bold text-2xl">Keto Origins</span>
+                </div>
+                <div class="absolute top-1/2 right-0 -translate-y-1/2 flex items-center">
+                    <!-- This part changes based on login state -->
+                    <div id="user-info" class="hidden items-center">
+                        <span id="user-name" class="mr-4 text-sm text-gray-300"></span>
+                        <button id="logout-btn" class="text-sm text-violet-400 hover:text-violet-300">Salir</button>
+                    </div>
+                    <button id="login-btn" class="btn-primary text-sm py-2 px-4 flex items-center">
+                        <svg class="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.223,0-9.657-3.657-11.303-8H6.306C9.656,39.663,16.318,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.986,36.623,44,30.85,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+                        Acceder
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main>
+                <div class="text-center mb-8">
+                      <h1 class="text-4xl font-bold mb-2">Guía Fisiológica de Medicamentos</h1>
+                      <p class="text-gray-300 max-w-2xl mx-auto">Entiende cómo funciona cada medicamento en tu cuerpo, no solo sus efectos.</p>
+                </div>
+                
+                <!-- Search Section -->
+                <div class="mb-8 max-w-2xl mx-auto">
+                    <div class="relative">
+                        <input type="text" id="search-input" class="w-full bg-gray-700/50 border border-gray-600 rounded-full py-3 px-6 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="Busca un medicamento (ej: Ibuprofeno)">
+                        <button id="search-btn" class="absolute right-2 top-1/2 -translate-y-1/2 btn-primary text-white font-semibold py-2 px-4">
+                            Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search History (Visible only when logged in) -->
+                <div id="history-container" class="mb-8 hidden">
+                    <h2 class="text-lg font-semibold mb-4 text-center">Tu Historial de Búsqueda</h2>
+                    <div id="history-list" class="flex flex-wrap gap-2 justify-center">
+                        <!-- History items will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Results Screen -->
+                <div id="results-screen" class="hidden">
+                    <!-- Loading Spinner -->
+                    <div id="loading-spinner" class="hidden text-center my-12">
+                        <svg class="animate-spin h-10 w-10 text-violet-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373, 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="mt-4 text-gray-300">Analizando información fisiológica...</p>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="error-message" class="hidden card p-6 rounded-2xl text-center">
+                        <h3 class="text-xl font-bold text-red-400 mb-2">Error</h3>
+                        <p id="error-text" class="text-gray-300"></p>
+                    </div>
+                    
+                    <!-- Result Content -->
+                    <div id="results-content">
+                        <!-- Content will be injected here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, serverTimestamp, query, limit, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- CONFIGURATION ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "YOUR_PROJECT_ID" };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-med-info-app';
+
+        // --- FIREBASE INITIALIZATION ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let userId = null;
+        let unsubscribeHistory = null;
+
+        // --- UI ELEMENTS ---
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userInfo = document.getElementById('user-info');
+        const userNameEl = document.getElementById('user-name');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const historyContainer = document.getElementById('history-container');
+        const historyList = document.getElementById('history-list');
+        const resultsScreen = document.getElementById('results-screen');
+        const resultsContent = document.getElementById('results-content');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+
+        // --- AUTHENTICATION ---
+        const provider = new GoogleAuthProvider();
+
+        loginBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch(error => console.error("Error during sign-in:", error));
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).catch(error => console.error("Error during sign-out:", error));
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in
+                userId = user.uid;
+                const displayName = user.displayName ? user.displayName.split(' ')[0] : 'Usuario';
+                userNameEl.textContent = `Hola, ${displayName}`;
+                
+                userInfo.classList.remove('hidden');
+                loginBtn.classList.add('hidden');
+                historyContainer.classList.remove('hidden');
+                
+                await setupHistoryListener();
+            } else {
+                // User is signed out
+                userId = null;
+                if (unsubscribeHistory) unsubscribeHistory();
+                
+                userInfo.classList.add('hidden');
+                loginBtn.classList.remove('hidden');
+                historyContainer.classList.add('hidden');
+            }
+        });
+
+        const initialAuth = async () => {
+             try {
+                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                     await signInWithCustomToken(auth, __initial_auth_token);
+                 } else {
+                     await signInAnonymously(auth);
+                 }
+             } catch (error) {
+                 console.error("Error with initial auth:", error);
+             }
+        };
+        
+        // --- FIRESTORE (HISTORY) ---
+        async function setupHistoryListener() {
+            if (!userId) return;
+            const historyCollectionPath = `/artifacts/${appId}/users/${userId}/searches`;
+            const q = query(collection(db, historyCollectionPath), orderBy("searchedAt", "desc"), limit(10)); 
+
+            unsubscribeHistory = onSnapshot(q, (snapshot) => {
+                historyList.innerHTML = '';
+                if (snapshot.empty) {
+                    historyList.innerHTML = `<p class="text-gray-400 text-sm">Tu historial de búsqueda aparecerá aquí.</p>`;
+                } else {
+                    snapshot.forEach(doc => {
+                        const search = doc.data();
+                        const historyBtn = document.createElement('button');
+                        historyBtn.className = 'bg-gray-700/50 hover:bg-gray-600/50 text-sm text-white py-1 px-3 rounded-full transition-colors';
+                        historyBtn.textContent = search.medicationName;
+                        historyBtn.onclick = () => {
+                            searchInput.value = search.medicationName;
+                            handleSearch();
+                        };
+                        historyList.appendChild(historyBtn);
+                    });
+                }
+            }, (error) => {
+                console.error("Error getting history:", error);
+            });
+        }
+
+        async function saveSearchToHistory(medicationName) {
+            if (!userId) return;
+            try {
+                const historyCollectionPath = `/artifacts/${appId}/users/${userId}/searches`;
+                await addDoc(collection(db, historyCollectionPath), {
+                    medicationName: medicationName,
+                    searchedAt: serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error saving search to history:", error);
+            }
+        }
+
+        // --- SEARCH & API CALL ---
+        searchBtn.addEventListener('click', handleSearch);
+        searchInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        async function handleSearch() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            resultsScreen.classList.remove('hidden');
+            resultsContent.innerHTML = '';
+            errorMessage.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+
+            try {
+                const medicationData = await fetchMedicationData(query);
+                renderResults(medicationData);
+                if (auth.currentUser && !auth.currentUser.isAnonymous) {
+                    saveSearchToHistory(query);
+                }
+            } catch (error) {
+                console.error("Search failed:", error);
+                showError(error.message || "No se pudo encontrar información para este medicamento. Intenta con otro nombre.");
+            } finally {
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        async function fetchMedicationData(medicationName) {
+            const prompt = `
+                Actúa como un farmacólogo experto y divulgador científico. Para el medicamento "${medicationName}", proporciona un análisis detallado en español.
+                La respuesta DEBE ser únicamente un objeto JSON válido, sin texto introductorio ni explicaciones adicionales.
+                La estructura del JSON debe ser la siguiente:
+                {
+                  "medicationName": "Nombre del Medicamento",
+                  "primaryUse": "Breve descripción de su uso principal.",
+                  "treats": "symptom" or "cure",
+                  "curative_property": "Si el medicamento cura una patología específica, responde únicamente con el nombre de esa patología (ej: 'Infecciones bacterianas'). Si no cura nada, responde '¡NO CURA NADA!'.",
+                  "affectedOrgans": [
+                    {"organ": "Nombre del Órgano", "effect": "Descripción del efecto en el órgano."}
+                  ],
+                  "physiologicalExplanation": "Explicación fisiológica detallada de su mecanismo de acción, por qué afecta a los órganos mencionados y las consecuencias. Usa un lenguaje claro y analogías si es posible.",
+                  "simplifiedSideEffects": [
+                    {"effect": "Efecto secundario común", "explanation": "Explicación simple de por qué ocurre."}
+                  ],
+                  "notRecommendedFor": [
+                      "Grupo de personas para las que no se recomienda (ej: Niños menores de 12 años)",
+                      "Otro grupo (ej: Mujeres embarazadas)"
+                  ]
+                }
+                Si no encuentras información del medicamento, devuelve un JSON con un campo "error". ej: {"error": "Medicamento no encontrado"}.
+            `;
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                }
+            };
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.candidates && result.candidates.length > 0) {
+                const jsonText = result.candidates[0].content.parts[0].text;
+                const data = JSON.parse(jsonText);
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                return data;
+            } else {
+                throw new Error("Respuesta inesperada de la API.");
+            }
+        }
+
+        // --- UI RENDERING ---
+        function showError(message) {
+            errorMessage.classList.remove('hidden');
+            errorText.textContent = message;
+        }
+
+        function getOrganIcon(organName) {
+            const lowerCaseOrgan = organName.toLowerCase();
+            if (lowerCaseOrgan.includes('corazón') || lowerCaseOrgan.includes('cardiovascular')) return '❤️';
+            if (lowerCaseOrgan.includes('hígado')) return '🧡';
+            if (lowerCaseOrgan.includes('riñón') || lowerCaseOrgan.includes('riñones')) return '💧';
+            if (lowerCaseOrgan.includes('estómago') || lowerCaseOrgan.includes('intestino') || lowerCaseOrgan.includes('digestivo')) return '🤢';
+            if (lowerCaseOrgan.includes('cerebro') || lowerCaseOrgan.includes('nervioso') || lowerCaseOrgan.includes('hipotálamo')) return '🧠';
+            if (lowerCaseOrgan.includes('pulmones') || lowerCaseOrgan.includes('pulmonares')) return '🫁';
+            if (lowerCaseOrgan.includes('piel') || lowerCaseOrgan.includes('cabello')) return '👋';
+            if (lowerCaseOrgan.includes('ojos') || lowerCaseOrgan.includes('retina')) return '👀';
+            if (lowerCaseOrgan.includes('vejiga') || lowerCaseOrgan.includes('urinaria') || lowerCaseOrgan.includes('próstata')) return '🚽';
+            if (lowerCaseOrgan.includes('sangre') || lowerCaseOrgan.includes('plaquetas') || lowerCaseOrgan.includes('circulatorio') || lowerCaseOrgan.includes('vasos sanguíneos') || lowerCaseOrgan.includes('arterias')) return '🩸';
+            if (lowerCaseOrgan.includes('huesos') || lowerCaseOrgan.includes('médula ósea')) return '🦴';
+            if (lowerCaseOrgan.includes('tejido adiposo')) return '🔥';
+            if (lowerCaseOrgan.includes('pene') || lowerCaseOrgan.includes('cuerpos cavernosos')) return '🍆';
+            if (lowerCaseOrgan.includes('testiculos')) return '🥥';
+            if (lowerCaseOrgan.includes('tejidos') || lowerCaseOrgan.includes('músculos') || lowerCaseOrgan.includes('articulaciones') || lowerCaseOrgan.includes('metabolismo')) return '💪';
+            return '⚪'; // Default icon
+        }
+
+        function getSideEffectIcon(effectText) {
+            const lowerCaseEffect = effectText.toLowerCase();
+            if (lowerCaseEffect.includes('sueño') || lowerCaseEffect.includes('insomnio') || lowerCaseEffect.includes('somnolencia') || lowerCaseEffect.includes('sedación')) return '😴';
+            if (lowerCaseEffect.includes('mareo') || lowerCaseEffect.includes('vértigo')) return '😵';
+            if (lowerCaseEffect.includes('cabeza')) return '🤯';
+            if (lowerCaseEffect.includes('estómago') || lowerCaseEffect.includes('náusea') || lowerCaseEffect.includes('acidez') || lowerCaseEffect.includes('indigestión')) return '🤢';
+            if (lowerCaseEffect.includes('boca seca')) return '🌵';
+            if (lowerCaseEffect.includes('visión borrosa') || lowerCaseEffect.includes('visuales')) return '👀';
+            if (lowerCaseEffect.includes('hinchazón') || lowerCaseEffect.includes('edema') || lowerCaseEffect.includes('retención')) return '🦶';
+            if (lowerCaseEffect.includes('presión arterial') || lowerCaseEffect.includes('palpitaciones') || lowerCaseEffect.includes('taquicardia')) return '📈';
+            if (lowerCaseEffect.includes('sangrado')) return '🩸';
+            if (lowerCaseEffect.includes('estreñimiento')) return '🚽';
+            if (lowerCaseEffect.includes('nerviosismo') || lowerCaseEffect.includes('temblor')) return '😬';
+            if (lowerCaseEffect.includes('pérdida de peso')) return '📉';
+            if (lowerCaseEffect.includes('sudoración') || lowerCaseEffect.includes('calor') || lowerCaseEffect.includes('rubor')) return '🥵';
+            if (lowerCaseEffect.includes('debilidad muscular') || lowerCaseEffect.includes('calambres')) return '💪';
+            if (lowerCaseEffect.includes('congestión nasal')) return '🤧';
+            return '⚠️'; // Default warning icon
+        }
+
+
+        function renderResults(data) {
+            const treatsText = data.treats === 'cure' 
+                ? '<span class="bg-green-500/20 text-green-300 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">Cura la Patología</span>'
+                : '<span class="bg-yellow-500/20 text-yellow-300 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">Trata Síntomas</span>';
+
+            let curativeTextHTML = '';
+            const curativeText = data.curative_property;
+            
+            if (curativeText && curativeText.toUpperCase() !== '¡NO CURA NADA!') {
+                curativeTextHTML = `<span class="curative-text cures">Cura ${curativeText}</span>`;
+            } else if (curativeText) {
+                 curativeTextHTML = `<span class="curative-text no-cure">${curativeText}</span>`;
+            }
+
+            const affectedOrgansHTML = data.affectedOrgans.map(org => `
+                <div class="flex items-start space-x-4">
+                    <div class="text-3xl">${getOrganIcon(org.organ)}</div>
+                    <div>
+                        <h4 class="font-semibold text-white">${org.organ}</h4>
+                        <p class="text-gray-300 text-sm">${org.effect}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            const sideEffectsHTML = data.simplifiedSideEffects.map(se => `
+                <li class="flex items-start mb-2">
+                    <span class="text-xl w-8 text-center">${getSideEffectIcon(se.effect)}</span>
+                    <div class="flex-1">
+                        <strong class="font-semibold neon-cyan">${se.effect}:</strong>
+                        <span class="text-gray-300 text-sm">${se.explanation}</span>
+                    </div>
+                </li>
+            `).join('');
+
+            let notRecommendedHTML = '';
+            if (data.notRecommendedFor && data.notRecommendedFor.length > 0) {
+                const itemsHTML = data.notRecommendedFor.map(item => `
+                    <li class="flex items-start text-gray-300">
+                        <span class="mr-3 text-lg">🚫</span>
+                        <span>${item}</span>
+                    </li>
+                `).join('');
+                notRecommendedHTML = `
+                    <div class="card p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold mb-4 text-red-400">No Recomendado Para</h3>
+                        <ul class="space-y-2">${itemsHTML}</ul>
+                    </div>
+                `;
+            }
+
+            resultsContent.innerHTML = `
+                <div class="space-y-6">
+                    <div class="card p-6 rounded-2xl">
+                        <div class="flex items-center flex-wrap mb-2">
+                            <h2 class="text-3xl font-bold">${data.medicationName}</h2>
+                            ${curativeTextHTML}
+                        </div>
+                        <div class="mb-4">${treatsText}</div>
+                        <p class="text-gray-300">${data.primaryUse}</p>
+                    </div>
+                    <div class="card p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2 1M4 7l2-1M4 7v2.5M12 21.5v-2.5M12 18.5l-2 1m2-1l2 1"></path></svg>
+                            Explicación Fisiológica: El Porqué
+                        </h3>
+                        <p class="text-gray-300 whitespace-pre-wrap leading-relaxed">${data.physiologicalExplanation}</p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="card p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold mb-4">Órganos Afectados</h3>
+                            <div class="space-y-4">${affectedOrgansHTML}</div>
+                        </div>
+                        <div class="card p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold mb-4">Efectos Secundarios (Simplificado)</h3>
+                            <ul class="space-y-2">${sideEffectsHTML}</ul>
+                        </div>
+                    </div>
+                    ${notRecommendedHTML}
+                </div>
+            `;
+        }
+        
+        // --- INITIAL LOAD ---
+        initialAuth();
+
+    </script>
+</body>
+</html>
