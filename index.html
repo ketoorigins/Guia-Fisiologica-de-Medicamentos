@@ -302,7 +302,12 @@
                 }
             } catch (error) {
                 console.error("Search failed:", error);
-                showError(error.message || "No se pudo encontrar información para este medicamento. Intenta con otro nombre.");
+                let userFriendlyError = "No se pudo encontrar información para este medicamento. Intenta con otro nombre.";
+                // Check for API key error specifically
+                if (error.message.includes("API") || error.message.includes("403") || error.message.includes("PERMISSION_DENIED")) {
+                    userFriendlyError = "Error de configuración: La clave API para el servicio de información no es válida o falta. El propietario de la aplicación debe configurar una clave API de Google Gemini para que la búsqueda funcione.";
+                }
+                showError(userFriendlyError);
             } finally {
                 loadingSpinner.classList.add('hidden');
             }
@@ -333,15 +338,12 @@
                 Si no encuentras información del medicamento, devuelve un JSON con un campo "error". ej: {"error": "Medicamento no encontrado"}.
             `;
 
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            // --- IMPORTANTE: CLAVE API ---
+            // Para que la búsqueda funcione, debes reemplazar "TU_CLAVE_API_DE_GEMINI" con tu propia clave API
+            // que puedes obtener gratis desde Google AI Studio.
+            const apiKey = ""; // Si estás en un entorno que la provee, déjala vacía. Si no, reemplázala.
             
-            const payload = {
-                contents: [{ role: "user", parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                }
-            };
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
             const response = await fetch(apiUrl, {
                 method: 'POST',
