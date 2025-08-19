@@ -99,13 +99,6 @@
                       <img src="https://i.ibb.co/20NypXdZ/ketoorigins.png" alt="Keto Origins Logo" class="w-24 h-24 mb-2 logo-shadow" onerror="this.onerror=null;this.src='https://placehold.co/96x96/24143b/ffffff?text=KO';">
                       <span class="font-bold text-2xl">Keto Origins</span>
                 </div>
-                <div class="absolute top-1/2 right-0 -translate-y-1/2 flex items-center">
-                    <!-- User info will be displayed here -->
-                    <div id="user-info" class="hidden items-center">
-                        <span id="user-name" class="mr-4 text-sm text-gray-300"></span>
-                        <button id="logout-btn" class="text-sm text-violet-400 hover:text-violet-300">Salir</button>
-                    </div>
-                </div>
             </header>
 
             <!-- Main Content -->
@@ -126,7 +119,7 @@
                 </div>
 
                 <!-- Search History (Visible only when logged in) -->
-                <div id="history-container" class="mb-8 hidden">
+                <div id="history-container" class="mb-8">
                     <h2 class="text-lg font-semibold mb-4 text-center">Tu Historial de Búsqueda</h2>
                     <div id="history-list" class="flex flex-wrap gap-2 justify-center">
                         <!-- History items will be injected here -->
@@ -160,10 +153,10 @@
     </div>
 
     <script type="module">
-        // Firebase Imports
+        // Firebase Imports (We keep them for the database functionality)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, addDoc, serverTimestamp, query, limit, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, onSnapshot, collection, addDoc, serverTimestamp, query, limit, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- CONFIGURATION ---
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "YOUR_PROJECT_ID" };
@@ -177,9 +170,6 @@
         let unsubscribeHistory = null;
 
         // --- UI ELEMENTS ---
-        const logoutBtn = document.getElementById('logout-btn');
-        const userInfo = document.getElementById('user-info');
-        const userNameEl = document.getElementById('user-name');
         const searchInput = document.getElementById('search-input');
         const searchBtn = document.getElementById('search-btn');
         const historyContainer = document.getElementById('history-container');
@@ -191,46 +181,26 @@
         const errorText = document.getElementById('error-text');
 
         // --- AUTHENTICATION ---
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth).catch(error => console.error("Error during sign-out:", error));
-        });
-
         onAuthStateChanged(auth, async (user) => {
-            if (user && !user.isAnonymous) {
-                // User is signed in and not anonymous
+            if (user) {
+                // User is signed in (anonymously)
                 userId = user.uid;
-                const displayName = user.displayName ? user.displayName.split(' ')[0] : 'Usuario';
-                userNameEl.textContent = `Hola, ${displayName}`;
-                
-                userInfo.classList.remove('hidden');
-                historyContainer.classList.remove('hidden');
-                
-                await setupHistoryListener();
-            } else if (user && user.isAnonymous) {
-                // User is signed in anonymously
-                userId = user.uid;
-                userInfo.classList.add('hidden');
                 historyContainer.classList.remove('hidden');
                 await setupHistoryListener();
             } else {
                 // User is signed out
                 userId = null;
                 if (unsubscribeHistory) unsubscribeHistory();
-                
-                userInfo.classList.add('hidden');
                 historyContainer.classList.add('hidden');
             }
         });
 
         const initialAuth = async () => {
              try {
-                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                     await signInWithCustomToken(auth, __initial_auth_token);
-                 } else {
-                     await signInAnonymously(auth);
-                 }
+                 await signInAnonymously(auth);
              } catch (error) {
-                 console.error("Error with initial auth:", error);
+                 console.error("Error with anonymous auth:", error);
+                 showError("No se pudo iniciar una sesión para guardar el historial. Las búsquedas no se guardarán.");
              }
         };
         
@@ -297,13 +267,12 @@
             try {
                 const medicationData = await fetchMedicationData(query);
                 renderResults(medicationData);
-                if (userId) { // Save history for both anonymous and signed-in users
+                if (userId) { 
                     saveSearchToHistory(query);
                 }
             } catch (error) {
                 console.error("Search failed:", error);
                 let userFriendlyError = "No se pudo encontrar información para este medicamento. Intenta con otro nombre.";
-                // Check for API key error specifically
                 if (error.message.includes("API") || error.message.includes("403") || error.message.includes("PERMISSION_DENIED")) {
                     userFriendlyError = "Error de configuración: La clave API para el servicio de información no es válida o falta. El propietario de la aplicación debe configurar una clave API de Google Gemini para que la búsqueda funcione.";
                 }
@@ -338,10 +307,7 @@
                 Si no encuentras información del medicamento, devuelve un JSON con un campo "error". ej: {"error": "Medicamento no encontrado"}.
             `;
 
-            // --- IMPORTANTE: CLAVE API ---
-            // Para que la búsqueda funcione, debes reemplazar "TU_CLAVE_API_DE_GEMINI" con tu propia clave API
-            // que puedes obtener gratis desde Google AI Studio.
-            const apiKey = ""; // Si estás en un entorno que la provee, déjala vacía. Si no, reemplázala.
+            const apiKey = ""; 
             
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
